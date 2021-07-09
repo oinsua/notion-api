@@ -10,8 +10,8 @@ exports.getDatabase = async function () {
   const responseResults = response.results.map((page) => {
     return {
       id: page.id,
-      name: page.properties.Name.title[0].plain_text,
-      role: page.properties.Role.rich_text[0].plain_text,
+      name: page.properties.Name.title[0]?.plain_text,
+      role: page.properties.Role.rich_text[0]?.plain_text,
     };
   });
 

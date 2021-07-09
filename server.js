@@ -18,10 +18,10 @@ app.get("/users", async (req, res) => {
   res.json(users);
 });
 
-app.post("/submit-form", (req, res) => {
+app.post("/submit-form", async (req, res) => {
   const name = req.body.name;
   const role = req.body.role;
-  newEntryToDatabase(name, role);
+  await newEntryToDatabase(name, role);
   res.redirect("/");
   res.end();
 });
