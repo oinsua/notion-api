@@ -1,37 +1,33 @@
 const getDataFromBackend = async () => {
-  const rest = await fetch("http://localhost:8000/users");
+  const rest = await fetch("http://localhost:8000/lessons");
   const data = await rest.json();
-
   return data;
 };
 
 const container = document.getElementById("container");
-const openFormButton = document.getElementById("newUserButton");
-const closeFormButton = document.getElementById("closeFormButton");
-const addUserFormContainer = document.getElementById("addUserFormContainer");
+const searchButton = document.getElementById("newUserButton");
 
-openFormButton.addEventListener("click", () => {
-  addUserFormContainer.style.display = "flex";
-});
-
-closeFormButton.addEventListener("click", () => {
-  addUserFormContainer.style.display = "none";
+searchButton.addEventListener("click", () => {
+  addData();
 });
 
 // Add data to HTML
 const addData = async () => {
   const data = await getDataFromBackend();
-
-  data.forEach((value) => {
+  console.log('data: ', data);
+  const count = data.length;
+  data.forEach((value, index) => {
     const div = document.createElement("div");
     div.classList.add("userContainer");
     div.innerHTML = `
-        <h3>${value.name}</h3>
-        <p>${value.role}</p>
+        <h3>${index+1}/${count}</h3>
+        <p>stepNumber: ${value.stepNumber}</p>
+        <p>classId: ${value.classId}</p>
+        <p>incode: ${value.incode}</p>
+        <p>outcode: ${value.outcode}</p>
+        <p>description: ${value.description}</p>
     `;
-
     container.append(div);
-  });
+  }); 
 };
 
-addData();
