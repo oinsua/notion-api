@@ -133,11 +133,11 @@ const getPages = async function ({id}) {
         }
 }
 
-const getPromises = async function (list) {
+const getPromisesData = async function (list) {
   const promises = [];
   const pages = [];
   try {
-    list.map(async (lessons, index) => {( promises[index] = getPages({id: lessons.id}))});
+    list.map(async (item, index) => {( promises[index] = getPages({id: item.id}))});
        await Promise.allSettled(promises).
        then((res) => { res.forEach((res) => {
                                            pages.push(res.value)
@@ -173,27 +173,44 @@ exports.findClassById = async ({ classId }) => {
       },
     });
     // check if the results array contains a user
-    const promises = [];
-    const pages = [];
     if (results.length > 0) {
-       const lessons_ID = results[0].properties.lessons.relation;
-       lessons_ID.map(async (lessons, index) => {( promises[index] = getPages({id: lessons.id}))});
-       await Promise.allSettled(promises).
-       then((res) => { res.forEach((res) => {
-                                           pages.push(res.value)
-                                          });
-                      }
-            );
+      const lessons_ID = results[0].properties.lessons.relation;
+      const pagesLesson = await getPromisesData(lessons_ID);
+
+      const chefClass_ID = results[0].properties.chefClass.relation;
+      const pagesChefs = await getPromisesData(chefClass_ID);
+
+      const dishes_ID = results[0].properties.dishes.relation;
+      const pagesDishes = await getPromisesData(dishes_ID);
+
+      const display_Groups_ID = results[0].properties.displayGroupItems.relation;
+      const pagesDisplayGroups = await getPromisesData(display_Groups_ID);
+
+      const shortHands_ID = results[0].properties.shorthand.relation;
+      const pagesShortHands = await getPromisesData(shortHands_ID);
+
+      const supplies_ID = results[0].properties.supplies.relation;
+      const pagesSupplies = await getPromisesData(supplies_ID);
+      
+      const techniques_ID = results[0].properties.techniques.relation;
+      const pagesTechniques = await getPromisesData(techniques_ID);
+
       return {
-        isClassInDB: true,
+        classInDB: true,
+        classId: results[0].properties.classId.select.name,
         classes: results,
-        lessons: pages
+        lessons: pagesLesson || [{}],
+        chefs: pagesChefs || [{}],
+        dishes: pagesDishes || [{}],
+        displayGroupItems: pagesDisplayGroups,
+        shorthand: pagesShortHands,
+        supplies: pagesSupplies,
+        techniques: pagesTechniques,
       };  
     }
     return {
-      isClassInDB: false,
-      classes: results,
-      lessons: pages
+      classInDB: false,
+      classes: results
     };
   } catch (error) {
     console.log(error);
