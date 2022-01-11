@@ -1,7 +1,10 @@
 const express = require("express");
 const moduleToFetch = require("./index");
-const getLessonsDatabase = moduleToFetch.getLessonsDatabase;
-const getSuppliesToDatabase = moduleToFetch.getSuppliesToDatabase;
+const getStepsDatabase = moduleToFetch.getStepsDatabase;
+const getClassesDatabase = moduleToFetch.getClassesDatabase;
+const getAllStepsToDatabase = moduleToFetch.getAllStepsToDatabase;
+const getAllClassesToDatabase = moduleToFetch.getAllClassesToDatabase;
+const findClassById = moduleToFetch.findClassById;
 const cors = require('cors');
 const port = 8000;
 
@@ -16,22 +19,47 @@ app.use(
   })
 );
 
-app.get("/lessons", async (req, res) => {
+app.get("/steps", async (req, res) => {
   try {
-    const lessons = await getLessonsDatabase();
-    res.status(200).json(lessons);
+    const steps = await getStepsDatabase();
+    res.status(200).json(steps);
   } catch (error) {
     console.log(error);
   }
 });
 
-app.get("/supplies", async (req, res) => {
+app.get("/all/steps", async (req, res) => {
   try {
-    const supplies = await getSuppliesToDatabase();
-    res.status(200).json(supplies);
+    const steps = await getAllStepsToDatabase();
+    res.status(200).json(steps);
   } catch (error) {
     console.log(error);
   }
+});
+
+app.get("/classes", async (req, res) => {
+  try {
+    const classes = await getClassesDatabase();
+    res.status(200).json(classes);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.get("/all/classes", async (req, res) => {
+  try {
+    const classes = await getAllClassesToDatabase();
+    res.status(200).json(classes);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.get("/:classId", async (req, res) => {
+  const classId = req.params.classId;
+  console.log('params: ', req.params.classId);
+  const result = await findClassById({classId});
+  res.status(200).json(result);
 });
 
 app.listen(port, console.log(`Server started on ${port}`));

@@ -64,7 +64,7 @@ html {
 
 .Search-Info {
   position: absolute;
-  bottom: 30px;
+  bottom: 90px;
   right: 30px;
   padding: 10px 20px;
 
@@ -81,7 +81,26 @@ html {
   background-color: #690b0b;
 }
 
-#addUserFormContainer {
+.find-Info {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  padding: 10px 20px;
+
+  background-color: #ef4444;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  transition: background-color 1s ease;
+}
+
+.find-Info:hover {
+  background-color: #690b0b;
+}
+
+#classIdFormContainer {
   position: absolute;
   top: 0;
   left: 0;
@@ -117,7 +136,7 @@ html {
   margin-bottom: 40px;
 }
 
-#addUserForm {
+#classIdForm {
   padding: 50px 100px;
   width: 300px;
 
@@ -131,7 +150,7 @@ html {
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 }
 
-#addUserForm input {
+#classIdForm input {
   width: 100%;
   box-sizing: border-box;
 }

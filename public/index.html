@@ -13,7 +13,25 @@
       <div id="container"></div>
     </div>
 
-    <button id="newUserButton" class="Search-Info">Search Info</button>
+    <div id="classIdFormContainer">
+      <button id="closeFormButton">Close</button>
+      <form method="POST"  id="classIdForm">
+        <h1 id="formTitle">Search a class by Id in to your database</h1>
+        <input
+          type="text"
+          name="classId"
+          id="classId"
+          placeholder="Insert ClassId"
+          class="inputField"
+          required
+        />
+        <input type="submit" id="submitFormInput" value="Search by Id" />
+      </form>
+    </div>
+    <div id="button_container">
+      <button type="button" id="newUserButton" class="Search-Info">Search Info</button>
+      <button type="button" id="findClassId" class="find-Info">Search by Id</button>
+    </div>
 
     <script  src="./main.js"></script>
   </body>
