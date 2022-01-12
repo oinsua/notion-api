@@ -57,7 +57,6 @@ app.get("/all/classes", async (req, res) => {
 
 app.get("/:classId", async (req, res) => {
   const classId = req.params.classId;
-  console.log('params: ', req.params.classId);
   const result = await findClassById({classId});
   res.status(200).json(result);
 });

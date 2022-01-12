@@ -30,6 +30,7 @@ searchButton.addEventListener("click", () => {
   addData();
 });
 
+
 // Add data to HTML
 const addData = async () => {
   const data = await getDataFromBackend();
@@ -62,7 +63,20 @@ const findByClassID = ({classId}) => {
   console.log('url: ', url);
      fetch(url)
     .then(res => res.json())
-    .then(response => console.log('Success:', response))
+    .then(response => {
+                        console.log('Success:', response);
+                        const div = document.createElement("div");
+                        div.classList.add("userContainer");
+                        div.innerHTML = `
+                            <div class="divContainer">
+                            <h3>ClassId: ${response.classId}</h3>
+                            <p>Class Name: ${response.classes[0].properties.title.rich_text[0].plain_text}</p>
+                            <p>Chef Name: ${response.classes[0].properties.name.title[0].plain_text}</p>
+                            <p>Description: ${response.classes[0].properties.description.rich_text[0].plain_text}</p>
+                            </div>
+                        `;
+                        container.append(div);
+                      })
     .catch(error => console.log('Error:', error));
 }
 

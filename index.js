@@ -87,7 +87,6 @@ exports.getStepsDatabase = async function () {
                                                   database_id: databaseId
                                                 });
   console.log("response.result: ", response.results.length);
-  console.log("response.result[0]: ", response.results[0]);
   const responseResults = response.results.map((page) => {
     return {
       id: page.id,
@@ -123,7 +122,11 @@ exports.getStepsDatabase = async function () {
     }
   }) 
 }
-
+/**
+ * auxiliary function to make request and to get response
+ * @param { id } 
+ * @returns { response }  
+ */
 const getPages = async function ({id}) {
         try {
           const response = await notion.pages.retrieve({page_id: id})
@@ -132,6 +135,12 @@ const getPages = async function ({id}) {
           console.log(error);
         }
 }
+
+/**
+ * auxiliary function to create many promises to get all pages.
+ * @param { list } 
+ * @returns { pages[] } 
+ */
 
 const getPromisesData = async function (list) {
   const promises = [];
@@ -156,20 +165,10 @@ exports.findClassById = async ({ classId }) => {
     const { results } = await notion.databases.query({
       database_id: databaseId,
       filter: {
-        and : [
-          {
-            property: 'classId',
-            select: {
-              equals : classId,
-            },
-          },
-          { 
-            property: 'lessons',
-            relation: {
-                     contains: '1f27b893-0adc-4a02-8d76-305396b4c2c2',
-            },
-          },
-        ]
+              property: 'classId',
+              select: {
+                equals : classId,
+              },
       },
     });
     // check if the results array contains a user
