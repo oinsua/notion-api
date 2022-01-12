@@ -157,7 +157,172 @@ const getPromisesData = async function (list) {
   } catch (error) {
     console.log(error);
   }
-}
+};
+
+const getProperties = ({array}) => {
+   let elements = [];
+   if(array.length > 1){
+      for (const item of array) {
+        elements.push(item.name)
+      }
+    }  else if(array.length === 1){
+          elements = array[0].name;
+    } else{ elements = '';}
+ return elements;
+};
+
+const getPropertiesNameTitle = ({array}) => {
+    let arrayElements = [];
+    if(array.length > 10){
+      for (let index = 0; index < 10; index++) {
+        arrayElements = [...arrayElements, array[index].properties.name.title[0].plain_text]; 
+      }
+      arrayElements = [...arrayElements, `${array.length - 10} more…`];
+    } else{
+      for (const item of array) {
+        arrayElements = [...arrayElements, item.properties.name.title[0].plain_text];
+      }
+    }
+    return arrayElements;
+};
+
+const getLessons = ({lessonss}) => {
+   let arrayLessons = [];
+   if(lessonss.length > 10){
+     for (let index = 0; index < 10; index++) {
+       arrayLessons = [...arrayLessons, lessonss[index].properties.name.rich_text[0].plain_text];
+     }
+     arrayLessons = [...arrayLessons, `${lessonss.length - 10} more…`]
+   }else{
+     for (const item of lessonss) {
+       arrayLessons = [...arrayLessons, item.properties.name.rich_text[0].plain_text];
+     }
+   }
+   return arrayLessons;
+};
+
+const getLessonIds = ({array}) => {
+  let arrayLessonIds = [];
+  for (const item of array) {
+    arrayLessonIds = [...arrayLessonIds, item.formula.string];
+  }
+  return arrayLessonIds;
+};
+
+const getTechniques = ({techniquess}) => {
+  let arraytechniques = [];
+  if(techniquess.length > 10){
+    for (let index = 0; index < 10; index++) {
+      arraytechniques = [...arraytechniques, techniquess[index].properties.techniqueId.title[0].plain_text];
+    }
+    arraytechniques = [...arraytechniques, `${techniquess.length - 10} more…`]
+  }else{
+    for (const item of techniquess) {
+      arraytechniques = [...arraytechniques, item.properties.techniqueId.title[0].plain_text];
+    }
+  }
+  return arraytechniques;
+};
+
+const getOtherNameTitle = ({array}) => {
+  let arrayobjects = [];
+  if(array.length > 10){
+    for (let index = 0; index < 10; index++) {
+      arrayobjects = [...arrayobjects, array[index].properties.Name.title[0].plain_text];
+    }
+    arrayobjects = [...arrayobjects, `${array.length - 10} more…`]
+  }else{
+    for (const item of array) {
+      arrayobjects = [...arrayobjects, item.properties.Name.title[0].plain_text];
+    }
+  }
+  return arrayobjects;
+};
+
+const getDisplayGroupItems = ({displayGroupItemss}) => {
+  let arrayItems = [];
+  if(displayGroupItemss.length > 10){
+    for (let index = 0; index < 10; index++) {
+      arrayItems = [...arrayItems, displayGroupItemss[index].properties.title.rich_text[0].plain_text];
+    }
+    arrayItems = [...arrayItems, `${displayGroupItemss.length - 10} more…`]
+  }else{
+    for (const item of displayGroupItemss) {
+      arrayItems = [...arrayItems, item.properties.title.rich_text[0].plain_text];
+    }
+  }
+  return arrayItems;
+
+};
+
+const createJsonObject = ({classes, lessonss, chefs, dishess, displayGroupItemss, 
+                           shorthands, suppliess, techniquess, objectss, wpLessonss }) => {
+    /* Get the metaTags property */
+    const metaTags = getProperties({array: classes[0].properties.metaTags.multi_select});
+    /* Get the cuisineTags property */
+    const cuisineTags = getProperties({array: classes[0].properties.cuisineTags.multi_select})
+    /* Get the location property */
+    const location = getProperties({array: classes[0].properties.location.rollup.array[0].multi_select})
+    /* Get the dishes property */
+    const dishes = getPropertiesNameTitle({array: dishess});
+    /* Get the lessons property */
+    const lessons = getLessons({lessonss});
+    /* Get the lessonIds property */
+    const lessonsId = getLessonIds({array: classes[0].properties.lessonsId.rollup.array});
+    /* Get the shorthand property */
+    const shorthand = getPropertiesNameTitle({array: shorthands});
+    /* Get the supplies property */
+    const supplies = getProperties({array: suppliess});
+    /* Get the techniques property */
+    const techniques = getTechniques({techniquess});
+    /* Get the objects property */
+    const objects = getOtherNameTitle({array: objectss});
+    /* Get the wpLessons property */
+    const wpLessons = getOtherNameTitle({array: wpLessonss});
+    /* Get the displayGroupItems property */
+    const displayGroupItems = getDisplayGroupItems({displayGroupItemss});
+
+  return {
+          classId: classes[0].properties.classId.select.name,
+          order: classes[0].properties.order.number,
+          name: chefs[0].properties.name.title[0].plain_text,
+          title: classes[0].properties.title.rich_text[0].plain_text,
+          description: classes[0].properties.description.rich_text[0].plain_text,
+          pppChef: classes[0].properties.name.title[0].plain_text,
+          metaTags,
+          cuisineTags,
+          permissions: classes[0].properties.permissions.select.name,
+          classHours: classes[0].properties.classHours.number,
+          comingLater: classes[0].properties.comingLater.checkbox,
+          hidden: classes[0].properties.hidden.checkbox,
+          location,
+          ppp: [],
+          scenes: ["An introduction to chef Edward Lee's story.","YesChef logo."],
+          chefId: classes[0].properties.chefId.rollup.array[0].formula.string,
+          chefClass: classes[0].properties.name.title[0].plain_text,
+          photo: '',
+          productionDates: `${classes[0].properties.productionDates.date.start} → ${classes[0].properties.productionDates.date.end}`,
+          dishes,
+          steps: [],
+          lessons,
+          lessonsId,
+          shorthand,
+          supplies,
+          techniques,
+          staging: classes[0].properties.staging.checkbox,
+          comingSoon: classes[0].properties.comingSoon.checkbox,
+          trailer: "",
+          objects,
+          wpLessons,
+          descriptionShort: classes[0].properties.descriptionShort.rich_text[0].plain_text,
+          displayGroupItems,
+          pdfExist: classes[0].properties.pdfExist.checkbox,
+          pdfLink: classes[0].properties.pdfLink.formula.string,
+          pdfLinkShort: classes[0].properties.pdfLinkShort.url,
+          pdfName: classes[0].properties.pdfName.rich_text[0].plain_text,
+          undefined: "",
+    }
+};
 
 exports.findClassById = async ({ classId }) => {
   const databaseId = process.env.NOTION_DB_CLASSES;
@@ -194,7 +359,17 @@ exports.findClassById = async ({ classId }) => {
       const techniques_ID = results[0].properties.techniques.relation;
       const pagesTechniques = await getPromisesData(techniques_ID);
 
-      return {
+      const objects_ID = results[0].properties.objects.relation;
+      const pagesObjects = await getPromisesData(objects_ID);
+
+      const wpLessons_ID = results[0].properties.wpLessons.relation;
+      const pagesWpLessons = await getPromisesData(wpLessons_ID);
+
+      const classObject = createJsonObject({classes: results, lessonss: pagesLesson, chefs: pagesChefs,
+                                            dishess: pagesDishes, displayGroupItemss: pagesDisplayGroups,
+                                            shorthands: pagesShortHands, suppliess: pagesSupplies, 
+                                            techniquess: pagesTechniques, objectss:  pagesObjects, wpLessonss: pagesWpLessons});
+      return classObject; /* {
         classInDB: true,
         classId: results[0].properties.classId.select.name,
         classes: results,
@@ -205,7 +380,9 @@ exports.findClassById = async ({ classId }) => {
         shorthand: pagesShortHands,
         supplies: pagesSupplies,
         techniques: pagesTechniques,
-      };  
+        objects: pagesObjects,
+        wpLessons: pagesWpLessons,
+      }; */  
     }
     return {
       classInDB: false,
