@@ -13,10 +13,10 @@
       <div id="container"></div>
     </div>
 
-    <div id="classIdFormContainer">
-      <button id="closeFormButton">Close</button>
-      <form method="POST"  id="classIdForm">
-        <h1 id="formTitle">Search a class by Id in to your database</h1>
+    <div id="classIdFormContainer" class="classIdFormContainer">
+      <button id="closeFormButton" class="closeFormButton">Close</button>
+      <form method="POST"  id="classIdForm" class="classIdForm">
+        <h1 id="formTitle" class="formTitle">Search a class by Id in to your database</h1>
         <input
           type="text"
           name="classId"
@@ -25,10 +25,28 @@
           class="inputField"
           required
         />
-        <input type="submit" id="submitFormInput" value="Search by Id" />
+        <input type="submit" id="submitFormInput" class="submitFormInput" value="Search by Id" />
       </form>
     </div>
+
+    <div id="AllPagesContainer" class="classIdFormContainer">
+      <button id="closeFormButtonAll" class="closeFormButton">Close</button>
+      <form method="POST"  id="classIdFormAll" class="classIdForm">
+        <h1 id="formTitleAll" class="formTitle">Search one Object by databaseId</h1>
+        <div class="AllPagesInputs">
+          <select title="databaseId" id="databaseId" class="inputField">
+            <option value="e1a68476292f49369af7c67b6e8ab8d2">CLASSES</option>
+            <option value="75050910b89b48c6a52274bd0de4bb7b">LESSONS</option>
+            <option value="a21a26db614c4faaac51225de5baa34d">CHEFS</option>
+            <option value="2174e78d52344ae7933109468f6ea9f3">STEPS</option>
+          </select>
+          <input type="submit" id="submitFormInputAll" class="submitFormInput" value="findAllClass" />
+        </div>
+      </form>
+    </div>
+
     <div id="button_container">
+      <button type="button" id="findAllClass" class="findAllClass">findAllClass</button>
       <button type="button" id="newUserButton" class="Search-Info">Search Info</button>
       <button type="button" id="findClassId" class="find-Info">Search by Id</button>
     </div>

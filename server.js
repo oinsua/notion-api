@@ -4,6 +4,7 @@ const getStepsDatabase = moduleToFetch.getStepsDatabase;
 const getClassesDatabase = moduleToFetch.getClassesDatabase;
 const getAllStepsToDatabase = moduleToFetch.getAllStepsToDatabase;
 const getAllClassesToDatabase = moduleToFetch.getAllClassesToDatabase;
+const getAllClassesFromDatabase = moduleToFetch.getAllClassesFromDatabase;
 const findClassById = moduleToFetch.findClassById;
 const cors = require('cors');
 const port = 8000;
@@ -53,6 +54,17 @@ app.get("/all/classes", async (req, res) => {
   } catch (error) {
     console.log(error);
   }
+});
+
+app.get("/all/:databaseId", async (req, res) => {
+  const databaseId = req.params.databaseId;
+  console.log('databaseId:', databaseId);
+   try {
+     const pages = await getAllClassesFromDatabase({databaseId});
+     res.status(200).json(pages);
+   } catch (error) {
+     console.log(error);
+   }
 });
 
 app.get("/:classId", async (req, res) => {

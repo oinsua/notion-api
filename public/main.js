@@ -3,20 +3,42 @@ const searchButton = document.getElementById("newUserButton");
 
 const openFormButton = document.getElementById("findClassId");
 const closeFormButton = document.getElementById("closeFormButton");
+const closeFormButtonAll = document.getElementById("closeFormButtonAll");
 const classIdFormContainer = document.getElementById("classIdFormContainer");
 const button_container = document.getElementById("button_container");
 const submitFormInput = document.getElementById("submitFormInput");
 const classIdForm = document.getElementById("classIdForm");
+const classIdFormAll = document.getElementById("classIdFormAll");
+const AllPagesContainer = document.getElementById("AllPagesContainer");
+const findAllClass = document.getElementById("findAllClass");
 
 classIdForm.addEventListener('submit', (e) => {
    e.preventDefault();
    const classId = document.getElementById("classId").value
    findByClassID({classId});
    classIdFormContainer.style.display = "none";
-   button_container.style.display = "block";
+   button_container.style.display = "none";
    openFormButton.style.display = "none";
    searchButton.style.display = "none";
 
+});
+
+classIdFormAll.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const select= document.getElementById("databaseId")
+  const databaseId = select.options[select.selectedIndex].value;
+  getAllPagesFromDatabase({databaseId});
+  AllPagesContainer.style.display = "none";
+  button_container.style.display = "none";
+  openFormButton.style.display = "none";
+  searchButton.style.display = "none";
+});
+
+
+
+findAllClass.addEventListener('click',() => {
+  AllPagesContainer.style.display = "flex";
+  button_container.style.display = "none";
 });
 
 openFormButton.addEventListener("click", () => {
@@ -26,6 +48,11 @@ openFormButton.addEventListener("click", () => {
 
 closeFormButton.addEventListener("click", () => {
   classIdFormContainer.style.display = "none";
+  button_container.style.display = "block";
+});
+
+closeFormButtonAll.addEventListener("click", () => {
+  AllPagesContainer.style.display = "none";
   button_container.style.display = "block";
 });
 
@@ -106,4 +133,16 @@ const findByClassID = ({classId}) => {
                       })
     .catch(error => console.log('Error:', error));
 }
+
+const getAllPagesFromDatabase = ({databaseId}) => {
+  const url = `http://localhost:8000/all/${databaseId}`;
+  console.log('url: ', url);
+  fetch(url)
+  .then(res => res.json())
+  .then(response => {
+                     console.log('Success: ', response)
+                     const json = JSON.stringify(response, undefined, 4);
+                     container.innerHTML = `<pre>${syntaxHighlight(json)}</pre>`;
+                    });
+};
 

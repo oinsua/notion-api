@@ -1,5 +1,6 @@
 require("dotenv").config();
 const { Client } = require("@notionhq/client");
+const {query} = require('./common');
 /**
  * conection to notion db.
  */
@@ -161,11 +162,11 @@ const getPromisesData = async function (list) {
 
 const getProperties = ({array}) => {
    let elements = [];
-   if(array.length > 1){
+   if(array?.length > 1){
       for (const item of array) {
         elements.push(item.name)
       }
-    }  else if(array.length === 1){
+    }  else if(array?.length === 1){
           elements = array[0].name;
     } else{ elements = '';}
  return elements;
@@ -175,12 +176,12 @@ const getPropertiesNameTitle = ({array}) => {
     let arrayElements = [];
     if(array.length > 10){
       for (let index = 0; index < 10; index++) {
-        arrayElements = [...arrayElements, array[index].properties.name.title[0].plain_text]; 
+        arrayElements = [...arrayElements, array[index]?.properties.name.title[0].plain_text]; 
       }
       arrayElements = [...arrayElements, `${array.length - 10} more…`];
     } else{
       for (const item of array) {
-        arrayElements = [...arrayElements, item.properties.name.title[0].plain_text];
+        arrayElements = [...arrayElements, item?.properties.name.title[0].plain_text];
       }
     }
     return arrayElements;
@@ -262,7 +263,7 @@ const createJsonObject = ({classes, lessonss, chefs, dishess, displayGroupItemss
     /* Get the cuisineTags property */
     const cuisineTags = getProperties({array: classes[0].properties.cuisineTags.multi_select})
     /* Get the location property */
-    const location = getProperties({array: classes[0].properties.location.rollup.array[0].multi_select})
+    const location = getProperties({array: classes[0].properties.location.rollup.array[0]?.multi_select})
     /* Get the dishes property */
     const dishes = getPropertiesNameTitle({array: dishess});
     /* Get the lessons property */
@@ -283,25 +284,25 @@ const createJsonObject = ({classes, lessonss, chefs, dishess, displayGroupItemss
     const displayGroupItems = getDisplayGroupItems({displayGroupItemss});
 
   return {
-          classId: classes[0].properties.classId.select.name,
-          order: classes[0].properties.order.number,
-          name: chefs[0].properties.name.title[0].plain_text,
-          title: classes[0].properties.title.rich_text[0].plain_text,
-          description: classes[0].properties.description.rich_text[0].plain_text,
-          pppChef: classes[0].properties.name.title[0].plain_text,
+          classId: classes[0].properties.classId?.select.name,
+          order: classes[0].properties.order?.number,
+          name: classes[0].properties.name.title[0]?.plain_text,
+          title: classes[0].properties.title.rich_text[0]?.plain_text,
+          description: classes[0].properties.description.rich_text[0]?.plain_text,
+          pppChef: classes[0].properties.name.title[0]?.plain_text,
           metaTags,
           cuisineTags,
-          permissions: classes[0].properties.permissions.select.name,
-          classHours: classes[0].properties.classHours.number,
+          permissions: classes[0].properties.permissions?.select.name,
+          classHours: classes[0].properties.classHours?.number,
           comingLater: classes[0].properties.comingLater.checkbox,
           hidden: classes[0].properties.hidden.checkbox,
           location,
           ppp: [],
           scenes: ["An introduction to chef Edward Lee's story.","YesChef logo."],
-          chefId: classes[0].properties.chefId.rollup.array[0].formula.string,
-          chefClass: classes[0].properties.name.title[0].plain_text,
+          chefId: classes[0].properties.chefId.rollup.array[0]?.formula.string,
+          chefClass: classes[0].properties.name.title[0]?.plain_text,
           photo: '',
-          productionDates: `${classes[0].properties.productionDates.date.start} → ${classes[0].properties.productionDates.date.end}`,
+          productionDates: `${classes[0].properties.productionDates?.date.start} → ${classes[0].properties.productionDates?.date.end}`,
           dishes,
           steps: [],
           lessons,
@@ -314,12 +315,12 @@ const createJsonObject = ({classes, lessonss, chefs, dishess, displayGroupItemss
           trailer: "",
           objects,
           wpLessons,
-          descriptionShort: classes[0].properties.descriptionShort.rich_text[0].plain_text,
+          descriptionShort: classes[0].properties.descriptionShort.rich_text[0]?.plain_text,
           displayGroupItems,
           pdfExist: classes[0].properties.pdfExist.checkbox,
           pdfLink: classes[0].properties.pdfLink.formula.string,
-          pdfLinkShort: classes[0].properties.pdfLinkShort.url,
-          pdfName: classes[0].properties.pdfName.rich_text[0].plain_text,
+          pdfLinkShort: classes[0].properties.pdfLinkShort?.url,
+          pdfName: classes[0].properties.pdfName.rich_text[0]?.plain_text,
           undefined: "",
     }
 };
@@ -393,14 +394,82 @@ exports.findClassById = async ({ classId }) => {
   }
 };
 
-exports.getAllPageFromDatabase = async (databaseId, prefixNumbers) => {
+exports.getAllClassesFromDatabase = async ({databaseId}) => {
+  try {
+    const pages = []
+    let cursor = undefined
+    while (true) {
+      const { results, next_cursor } = await notion.databases.query({
+        database_id: databaseId,
+        start_cursor: cursor,
+        filter: {
+          or:query,
+         },
+      })
+      pages.push(...results)
+      if (!next_cursor) {
+        break
+      }
+      cursor = next_cursor
+    }
+    console.log(`${pages.length} pages successfully fetched.`)
+    // check if the results array contains a user
+    let arrayObjects = [];
+    if (pages.length > 0) {
+      for (const item of pages) {
+          const lessons_ID = item.properties.lessons.relation;
+          const pagesLesson = await getPromisesData(lessons_ID);
+
+          const chefClass_ID = item.properties.chefClass.relation;
+          const pagesChefs = await getPromisesData(chefClass_ID);
+
+          const dishes_ID = item.properties.dishes.relation;
+          const pagesDishes = await getPromisesData(dishes_ID);
+
+          const display_Groups_ID = item.properties.displayGroupItems.relation;
+          const pagesDisplayGroups = await getPromisesData(display_Groups_ID);
+
+          const shortHands_ID = item.properties.shorthand.relation;
+          const pagesShortHands = await getPromisesData(shortHands_ID);
+
+          const supplies_ID = item.properties.supplies.relation;
+          const pagesSupplies = await getPromisesData(supplies_ID);
+          
+          const techniques_ID = item.properties.techniques.relation;
+          const pagesTechniques = await getPromisesData(techniques_ID);
+
+          const objects_ID = item.properties.objects.relation;
+          const pagesObjects = await getPromisesData(objects_ID);
+
+          const wpLessons_ID = item.properties.wpLessons.relation;
+          const pagesWpLessons = await getPromisesData(wpLessons_ID);
+
+          const classObject = createJsonObject({classes: [item], lessonss: pagesLesson, chefs: pagesChefs,
+                                            dishess: pagesDishes, displayGroupItemss: pagesDisplayGroups,
+                                            shorthands: pagesShortHands, suppliess: pagesSupplies, 
+                                            techniquess: pagesTechniques, objectss:  pagesObjects, wpLessonss: pagesWpLessons});
+          arrayObjects = [...arrayObjects, classObject];
+      
+      }
+      return arrayObjects; 
+    }
+    return {
+      classInDB: false,
+      classes: pages
+    };
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+exports.getAllPageFromDatabase = async (databaseId/* , prefixNumbers */) => {
   let allPages= [];
 
   const getPages = async (cursor) => {
     const requestPayload = {
       path: `databases/${databaseId}/query`,
       method: "post",
-      body: {
+      /* body: {
         filter: {
           or: prefixNumbers.map(prefix => {
             return {
@@ -411,12 +480,12 @@ exports.getAllPageFromDatabase = async (databaseId, prefixNumbers) => {
             };
           }),
         },
-      },
+      }, */
     };
     if (cursor) requestPayload.body = { start_cursor: cursor };
     let pages = null;
-    try {
-      pages = (await this.notion.request(
+    try { 
+      pages = (await notion.request(
         requestPayload
       ));
     } catch (e) {
