@@ -45,10 +45,27 @@
       </form>
     </div>
 
+    <div id="classIdFormContainerPage" class="classIdFormContainer">
+      <button id="closeFormButtonPage" class="closeFormButton">Close</button>
+      <form method="POST"  id="classIdFormPage" class="classIdForm">
+        <h1 id="formTitlePage" class="formTitle">Search a class by Id in to your database</h1>
+        <input
+          type="text"
+          name="pageId"
+          id="pageId"
+          placeholder="Insert PageId"
+          class="inputField"
+          required
+        />
+        <input type="submit" id="submitFormInputPage" class="submitFormInput" value="Page by Id" />
+      </form>
+    </div>
+
     <div id="button_container">
       <button type="button" id="findAllClass" class="findAllClass">findAllClass</button>
       <button type="button" id="newUserButton" class="Search-Info">Search Info</button>
       <button type="button" id="findClassId" class="find-Info">Search by Id</button>
+      <button type="button" id="getPages" class="Get-Pages">Get Page by Id</button>
     </div>
 
     <script  src="./main.js"></script>

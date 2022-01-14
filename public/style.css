@@ -108,6 +108,25 @@ html {
   background-color: #690b0b;
 }
 
+.Get-Pages {
+  position: absolute;
+  bottom: 210px;
+  right: 30px;
+  padding: 10px 20px;
+
+  background-color: #ef4444;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  transition: background-color 1s ease;
+}
+
+.Get-Pages:hover {
+  background-color: #690b0b;
+}
+
 .findAllClass {
   position: absolute;
   bottom: 150px;

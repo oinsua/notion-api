@@ -3,14 +3,18 @@ const searchButton = document.getElementById("newUserButton");
 
 const openFormButton = document.getElementById("findClassId");
 const closeFormButton = document.getElementById("closeFormButton");
+const closeFormButtonPage = document.getElementById("closeFormButtonPage");
 const closeFormButtonAll = document.getElementById("closeFormButtonAll");
 const classIdFormContainer = document.getElementById("classIdFormContainer");
+const classIdFormContainerPage = document.getElementById("classIdFormContainerPage");
 const button_container = document.getElementById("button_container");
 const submitFormInput = document.getElementById("submitFormInput");
 const classIdForm = document.getElementById("classIdForm");
+const classIdFormPage = document.getElementById("classIdFormPage");
 const classIdFormAll = document.getElementById("classIdFormAll");
 const AllPagesContainer = document.getElementById("AllPagesContainer");
 const findAllClass = document.getElementById("findAllClass");
+const getPages = document.getElementById("getPages");
 
 classIdForm.addEventListener('submit', (e) => {
    e.preventDefault();
@@ -34,6 +38,14 @@ classIdFormAll.addEventListener('submit', (e) => {
   searchButton.style.display = "none";
 });
 
+classIdFormPage.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const pageId = document.getElementById("pageId").value
+  getPagesById({pageId});
+  classIdFormContainerPage.style.display = "none";
+  button_container.style.display = "none";
+});
+
 
 
 findAllClass.addEventListener('click',() => {
@@ -46,7 +58,17 @@ openFormButton.addEventListener("click", () => {
   button_container.style.display = "none";
 });
 
+getPages.addEventListener("click", () => {
+  classIdFormContainerPage.style.display = "flex";
+  button_container.style.display = "none";
+});
+
 closeFormButton.addEventListener("click", () => {
+  classIdFormContainer.style.display = "none";
+  button_container.style.display = "block";
+});
+
+closeFormButtonPage.addEventListener("click", () => {
   classIdFormContainer.style.display = "none";
   button_container.style.display = "block";
 });
@@ -136,6 +158,18 @@ const findByClassID = ({classId}) => {
 
 const getAllPagesFromDatabase = ({databaseId}) => {
   const url = `http://localhost:8000/all/${databaseId}`;
+  console.log('url: ', url);
+  fetch(url)
+  .then(res => res.json())
+  .then(response => {
+                     console.log('Success: ', response)
+                     const json = JSON.stringify(response, undefined, 4);
+                     container.innerHTML = `<pre>${syntaxHighlight(json)}</pre>`;
+                    });
+};
+
+const getPagesById = ({pageId}) => {
+  const url = `http://localhost:8000/page/${pageId}`;
   console.log('url: ', url);
   fetch(url)
   .then(res => res.json())

@@ -249,7 +249,7 @@ const formatDate = (date) => {
 }
 
 const createJsonObject = ({classes, lessonss, chefs, dishess, displayGroupItemss, sceness,
-                           shorthands, stepss, suppliess, techniquess, objectss, wpLessonss }) => {
+                           shorthands, stepss, suppliess, techniquess, objectss, wpLessonss, listPagesId }) => {
     /* Get the metaTags property */
     const metaTags = getProperties({array: classes[0].properties.metaTags.multi_select});
     /* Get the cuisineTags property */
@@ -360,6 +360,7 @@ const createJsonObject = ({classes, lessonss, chefs, dishess, displayGroupItemss
                              ? classes[0].properties.pdfName.rich_text[0]?.plain_text
                              : '',
           undefined: "",
+          listPagesId,
     }
 };
 
@@ -421,7 +422,7 @@ exports.findClassById = async ({ classId }) => {
 
 exports.getAllClassesFromDatabase = async ({databaseId}) => {
   try {
-    const pages = []
+    const pages = [];
     let cursor = undefined
     while (true) {
       const { results, next_cursor } = await notion.databases.query({
@@ -475,10 +476,24 @@ exports.getAllClassesFromDatabase = async ({databaseId}) => {
           const wpLessons_ID = item.properties.wpLessons.relation;
           const pagesWpLessons = await getPromisesData(wpLessons_ID);
 
+          const listPagesId = {
+            lessons_ID,
+            chefClass_ID,
+            dishes_ID,
+            display_Groups_ID,
+            scenes_ID,
+            shortHands_ID,
+            steps_ID,
+            supplies_ID,
+            techniques_ID,
+            objects_ID,
+            wpLessons_ID
+          }
+
           const classObject = createJsonObject({classes: [item], lessonss: pagesLesson, chefs: pagesChefs,
                                             dishess: pagesDishes, displayGroupItemss: pagesDisplayGroups, sceness: pageScenes,
                                             shorthands: pagesShortHands, stepss: pagesSteps, suppliess: pagesSupplies, 
-                                            techniquess: pagesTechniques, objectss:  pagesObjects, wpLessonss: pagesWpLessons});
+                                            techniquess: pagesTechniques, objectss:  pagesObjects, wpLessonss: pagesWpLessons, listPagesId});
           arrayObjects = [...arrayObjects, classObject];
       
       }
@@ -537,4 +552,13 @@ exports.getAllPageFromDatabase = async (databaseId/* , prefixNumbers */) => {
   };
   await getPages();
   return allPages;
+};
+
+exports.getPagesById = async function ({pageId}) {
+  try {
+    const response = await notion.pages.retrieve({page_id: pageId})
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
 }
