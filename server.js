@@ -1,10 +1,12 @@
 const express = require("express");
 const moduleToFetch = require("./index");
+const classes = require("./src/jsonClasses");
 const getStepsDatabase = moduleToFetch.getStepsDatabase;
 const getClassesDatabase = moduleToFetch.getClassesDatabase;
 const getAllStepsToDatabase = moduleToFetch.getAllStepsToDatabase;
 const getAllClassesToDatabase = moduleToFetch.getAllClassesToDatabase;
-const getAllClassesFromDatabase = moduleToFetch.getAllClassesFromDatabase;
+//const getAllClassesFromDatabase = moduleToFetch.getAllClassesFromDatabase;
+const getAllClassesFromDatabase = classes.getAllClassesFromDatabase;
 const getPagesFromDatabase = moduleToFetch.getPagesFromDatabase;
 const getPagesById = moduleToFetch.getPagesById;
 const findClassById = moduleToFetch.findClassById;
@@ -44,13 +46,15 @@ app.get("/classes", async (req, res) => {
   try {
     const classes = await getPagesFromDatabase({filter: {
                                                         property: "classId",
-                                                          rollup:{														  
-                                                            rollup_property_id: {
-                                                            equals: "c01"
-                                                          }
-                                                        }
+                                                        rollup: {
+                                                                any: {
+                                                                        select: {
+                                                                          equals: "c01"
+                                                                        }
+                                                                      }
+                                                                }
                                                       }, 
-                                                database_Id: "75050910b89b48c6a52274bd0de4bb7b"});
+                                                database_Id: "fd40992046714433882126e3b8cc59fc"});
     res.status(200).json(classes);
   } catch (error) {
     console.log(error);
@@ -88,5 +92,6 @@ app.get("/page/:pageId", async (req, res) => {
   const result = await getPagesById({pageId});
   res.status(200).json(result);
 });
+
 
 app.listen(port, console.log(`Server started on ${port}`));

@@ -172,64 +172,80 @@ const getProperties = ({array}) => {
 
 const getPropertiesNameTitle = ({array}) => {
     let arrayElements = [];
-    for (let index = 0; index < array.length; index++) {
-      arrayElements = [...arrayElements, array[index]?.properties.name.title[0].plain_text]; 
+    if(array.length > 0){
+      for (let index = 0; index < array.length; index++) {
+        arrayElements = [...arrayElements, array[index]?.properties.name.title[0].plain_text]; 
+      }
     }
     return arrayElements;
 };
 
 const getLessons = ({lessonss}) => {
    let arrayLessons = [];
-   for (let index = 0; index < lessonss.length; index++) {
-    arrayLessons = [...arrayLessons, lessonss[index].properties.lesson_num?.title[0]?.plain_text];
+   if(lessonss.length > 0){
+      for (let index = 0; index < lessonss.length; index++) {
+        arrayLessons = [...arrayLessons, lessonss[index].properties.lesson_num?.title[0]?.plain_text];
+      }
   }
    return arrayLessons;
 };
 
 const getLessonIds = ({array}) => {
   let arrayLessonIds = [];
-  for (const item of array) {
-    arrayLessonIds = [...arrayLessonIds, `${item.formula.string}`];
+  if(array.length > 0){
+    for (const item of array) {
+      arrayLessonIds = [...arrayLessonIds, `${item.formula.string}`];
+    }
   }
   return arrayLessonIds;
 };
 
 const getTechniques = ({techniquess}) => {
   let arraytechniques = [];
-  for (let index = 0; index < techniquess.length; index++) {
-    arraytechniques = [...arraytechniques, techniquess[index].properties.techniqueId.title[0].plain_text];
+  if(techniquess.length > 0 ){
+    for (let index = 0; index < techniquess.length; index++) {
+      arraytechniques = [...arraytechniques, techniquess[index].properties.techniqueId.title[0].plain_text];
+    }
   }
   return arraytechniques;
 };
 
 const getOtherNameTitle = ({array}) => {
   let arrayobjects = [];
-  for (let index = 0; index < array.length; index++) {
-    arrayobjects = [...arrayobjects, array[index].properties.Name.title[0].plain_text];
+  if(array?.length > 0){
+      for (let index = 0; index < array.length; index++) {
+        arrayobjects = [...arrayobjects, array[index].properties.Name.title[0].plain_text];
+      }
   }
   return arrayobjects;
 };
 
 const getDisplayGroupItems = ({displayGroupItemss}) => {
   let arrayItems = [];
-  for (let index = 0; index < displayGroupItemss.length ; index++) {
-    arrayItems = [...arrayItems, displayGroupItemss[index]?.properties.internalName.title[0].plain_text];
+  if(displayGroupItemss.length > 0){
+    for (let index = 0; index < displayGroupItemss.length ; index++) {
+      arrayItems = [...arrayItems, displayGroupItemss[index]?.properties.internalName.title[0].plain_text];
+    }
   }
   return arrayItems;
 };
 
 const getScenes = ({sceness}) => {
   let arrayItems = [];
-  for (let index = 0; index < sceness.length ; index++) {
-    arrayItems = [...arrayItems, sceness[index]?.properties['scene*']?.title[0]?.plain_text];
+  if(sceness.length > 0){
+    for (let index = 0; index < sceness.length ; index++) {
+      arrayItems = [...arrayItems, sceness[index]?.properties['scene*']?.title[0]?.plain_text];
+    }
   }
   return arrayItems;
 };
 
 const getSteps = ({stepss}) => {
   let arrayItems = [];
-  for (let index = 0; index < stepss.length ; index++) {
-    arrayItems = [...arrayItems, stepss[index]?.properties.stepNumber?.title[0]?.plain_text];
+  if(stepss.length  > 0){
+    for (let index = 0; index < stepss.length ; index++) {
+      arrayItems = [...arrayItems, stepss[index]?.properties.stepNumber?.title[0]?.plain_text];
+    }
   }
   return arrayItems;
 };
@@ -419,7 +435,7 @@ exports.findClassById = async ({ classId }) => {
   }
 };
 
-exports.getPagesFromDatabase = async ({filter, database_Id}) => {
+const getPagesFromDatabase = async ({filter, database_Id}) => {
   try {
     const pages = []
     let cursor = undefined
@@ -469,22 +485,28 @@ exports.getAllClassesFromDatabase = async ({databaseId}) => {
               const filter = {
                 property: 'classId',
                 rollup: {
-                  select: {
-                    equals : item.properties.classId.select.name,
+                  any: {
+                          select: {
+                            equals: item.properties.classId.select.name,
+                          }
+                        }
                   }
-                },
               };
-            const pagesLesson = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_LESSONS, filter});
-            const pagesChefs = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_CHEFS, filter});
-            const pagesDishes = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_CONTENT_BLOCKS, filter });
-            const pagesDisplayGroups = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_DISPLAY_GROUP_ITEMS, filter});
-            const pageScenes = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_SCENES, filter});
-            const pagesShortHands = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_SHORTHANDS, filter});
-            const pagesSteps = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_STEPS, filter});
-            const pagesSupplies = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_SUPPLIES, filter});
-            const pagesTechniques = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_TECHNIQUES, filter});
-            const pagesObjects = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_OBJECTS, filter});
-            const pagesWpLessons = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_WPLESSONS, filter});
+            const pagesLesson = await getPagesFromDatabase({ database_Id: process.env.NOTION_DB_LESSONS, filter});
+            const pagesChefs = await getPagesFromDatabase({ database_Id: process.env.NOTION_DB_CHEFS, filter});
+            const pagesDishes = await getPagesFromDatabase({ database_Id: process.env.NOTION_DB_CONTENT_BLOCKS, filter });
+            const pagesDisplayGroups = await getPagesFromDatabase({ database_Id: process.env.NOTION_DB_DISPLAY_GROUP_ITEMS, filter});
+            const pageScenes = await getPagesFromDatabase({ database_Id: process.env.NOTION_DB_SCENES, filter});
+            const pagesShortHands = await getPagesFromDatabase({ database_Id: process.env.NOTION_DB_SHORTHANDS, filter});
+            const pagesSteps = await getPagesFromDatabase({ database_Id: process.env.NOTION_DB_STEPS, filter});
+            const pagesSupplies = await getPagesFromDatabase({ database_Id: process.env.NOTION_DB_SUPPLIES, filter});
+            const pagesTechniques = await getPagesFromDatabase({ database_Id: process.env.NOTION_DB_TECHNIQUES, filter});
+            
+            const objects_ID = item.properties.objects.relation;
+            const pagesObjects = await getPromisesData(objects_ID);
+  
+            const wpLessons_ID = item.properties.wpLessons.relation;
+            const pagesWpLessons = await getPromisesData(wpLessons_ID);
 
             const classObject = createJsonObject({classes: [item], lessonss: pagesLesson, chefs: pagesChefs,
               dishess: pagesDishes, displayGroupItemss: pagesDisplayGroups, sceness: pageScenes,
