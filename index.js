@@ -1,6 +1,6 @@
 require("dotenv").config();
 const { Client } = require("@notionhq/client");
-const {query} = require('./common');
+const {queryClass} = require('./common');
 /**
  * conection to notion db.
  */
@@ -249,7 +249,7 @@ const formatDate = (date) => {
 }
 
 const createJsonObject = ({classes, lessonss, chefs, dishess, displayGroupItemss, sceness,
-                           shorthands, stepss, suppliess, techniquess, objectss, wpLessonss, listPagesId }) => {
+                           shorthands, stepss, suppliess, techniquess, objectss, wpLessonss }) => {
     /* Get the metaTags property */
     const metaTags = getProperties({array: classes[0].properties.metaTags.multi_select});
     /* Get the cuisineTags property */
@@ -360,7 +360,6 @@ const createJsonObject = ({classes, lessonss, chefs, dishess, displayGroupItemss
                              ? classes[0].properties.pdfName.rich_text[0]?.plain_text
                              : '',
           undefined: "",
-          listPagesId,
     }
 };
 
@@ -420,6 +419,29 @@ exports.findClassById = async ({ classId }) => {
   }
 };
 
+exports.getPagesFromDatabase = async ({filter, database_Id}) => {
+  try {
+    const pages = []
+    let cursor = undefined
+    while (true) {
+      const { results, next_cursor } = await notion.databases.query({
+        database_id: database_Id,
+        start_cursor: cursor,
+        filter,
+      })
+      pages.push(...results)
+      if (!next_cursor) {
+        break
+      }
+      cursor = next_cursor
+    }
+    console.log(`${pages.length} pages successfully fetched.`)
+   return pages;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 exports.getAllClassesFromDatabase = async ({databaseId}) => {
   try {
     const pages = [];
@@ -429,7 +451,7 @@ exports.getAllClassesFromDatabase = async ({databaseId}) => {
         database_id: databaseId,
         start_cursor: cursor,
         filter: {
-          or:query,
+          or:queryClass,
          },
       })
       pages.push(...results)
@@ -443,59 +465,33 @@ exports.getAllClassesFromDatabase = async ({databaseId}) => {
     let arrayObjects = [];
     if (pages.length > 0) {
       for (const item of pages) {
-          const lessons_ID = item.properties.lessons.relation;
-          const pagesLesson = await getPromisesData(lessons_ID);
+         if(item.properties.classId.select.name){
+              const filter = {
+                property: 'classId',
+                rollup: {
+                  select: {
+                    equals : item.properties.classId.select.name,
+                  }
+                },
+              };
+            const pagesLesson = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_LESSONS, filter});
+            const pagesChefs = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_CHEFS, filter});
+            const pagesDishes = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_CONTENT_BLOCKS, filter });
+            const pagesDisplayGroups = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_DISPLAY_GROUP_ITEMS, filter});
+            const pageScenes = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_SCENES, filter});
+            const pagesShortHands = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_SHORTHANDS, filter});
+            const pagesSteps = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_STEPS, filter});
+            const pagesSupplies = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_SUPPLIES, filter});
+            const pagesTechniques = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_TECHNIQUES, filter});
+            const pagesObjects = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_OBJECTS, filter});
+            const pagesWpLessons = getPagesFromDatabase({ database_Id: process.env.NOTION_DB_WPLESSONS, filter});
 
-          const chefClass_ID = item.properties.chefClass.relation;
-          const pagesChefs = await getPromisesData(chefClass_ID);
-
-          const dishes_ID = item.properties.dishes.relation;
-          const pagesDishes = await getPromisesData(dishes_ID);
-
-          const display_Groups_ID = item.properties.displayGroupItems.relation;
-          const pagesDisplayGroups = await getPromisesData(display_Groups_ID);
-
-          const scenes_ID = item.properties.scenes.relation;
-          const pageScenes = await getPromisesData(scenes_ID);
-
-          const shortHands_ID = item.properties.shorthand.relation;
-          const pagesShortHands = await getPromisesData(shortHands_ID);
-
-          const steps_ID = item.properties.steps.relation;
-          const pagesSteps = await getPromisesData(steps_ID);
-
-          const supplies_ID = item.properties.supplies.relation;
-          const pagesSupplies = await getPromisesData(supplies_ID);
-          
-          const techniques_ID = item.properties.techniques.relation;
-          const pagesTechniques = await getPromisesData(techniques_ID);
-
-          const objects_ID = item.properties.objects.relation;
-          const pagesObjects = await getPromisesData(objects_ID);
-
-          const wpLessons_ID = item.properties.wpLessons.relation;
-          const pagesWpLessons = await getPromisesData(wpLessons_ID);
-
-          const listPagesId = {
-            lessons_ID,
-            chefClass_ID,
-            dishes_ID,
-            display_Groups_ID,
-            scenes_ID,
-            shortHands_ID,
-            steps_ID,
-            supplies_ID,
-            techniques_ID,
-            objects_ID,
-            wpLessons_ID
-          }
-
-          const classObject = createJsonObject({classes: [item], lessonss: pagesLesson, chefs: pagesChefs,
-                                            dishess: pagesDishes, displayGroupItemss: pagesDisplayGroups, sceness: pageScenes,
-                                            shorthands: pagesShortHands, stepss: pagesSteps, suppliess: pagesSupplies, 
-                                            techniquess: pagesTechniques, objectss:  pagesObjects, wpLessonss: pagesWpLessons, listPagesId});
-          arrayObjects = [...arrayObjects, classObject];
-      
+            const classObject = createJsonObject({classes: [item], lessonss: pagesLesson, chefs: pagesChefs,
+              dishess: pagesDishes, displayGroupItemss: pagesDisplayGroups, sceness: pageScenes,
+              shorthands: pagesShortHands, stepss: pagesSteps, suppliess: pagesSupplies, 
+              techniquess: pagesTechniques, objectss:  pagesObjects, wpLessonss: pagesWpLessons});
+            arrayObjects = [...arrayObjects, classObject];
+         }
       }
       return {
         collection: "CLASSES",

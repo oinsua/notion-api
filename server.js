@@ -5,6 +5,7 @@ const getClassesDatabase = moduleToFetch.getClassesDatabase;
 const getAllStepsToDatabase = moduleToFetch.getAllStepsToDatabase;
 const getAllClassesToDatabase = moduleToFetch.getAllClassesToDatabase;
 const getAllClassesFromDatabase = moduleToFetch.getAllClassesFromDatabase;
+const getPagesFromDatabase = moduleToFetch.getPagesFromDatabase;
 const getPagesById = moduleToFetch.getPagesById;
 const findClassById = moduleToFetch.findClassById;
 const cors = require('cors');
@@ -41,7 +42,15 @@ app.get("/all/steps", async (req, res) => {
 
 app.get("/classes", async (req, res) => {
   try {
-    const classes = await getClassesDatabase();
+    const classes = await getPagesFromDatabase({filter: {
+                                                        property: "classId",
+                                                          rollup:{														  
+                                                            rollup_property_id: {
+                                                            equals: "c01"
+                                                          }
+                                                        }
+                                                      }, 
+                                                database_Id: "75050910b89b48c6a52274bd0de4bb7b"});
     res.status(200).json(classes);
   } catch (error) {
     console.log(error);

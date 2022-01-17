@@ -1,4 +1,4 @@
-const query = [
+const queryClass = [
     {
       property: 'classId',
       select: {
@@ -80,5 +80,5 @@ const query = [
   ];
 
 module.exports = {
-    query
+  queryClass
 }
