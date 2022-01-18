@@ -435,7 +435,7 @@ exports.findClassById = async ({ classId }) => {
   }
 };
 
-const getPagesFromDatabase = async ({filter, database_Id}) => {
+exports.getPagesFromDatabase = async ({filter, database_Id}) => {
   try {
     const pages = []
     let cursor = undefined

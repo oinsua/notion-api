@@ -30,8 +30,8 @@ classIdForm.addEventListener('submit', (e) => {
 classIdFormAll.addEventListener('submit', (e) => {
   e.preventDefault();
   const select= document.getElementById("databaseId")
-  const databaseId = select.options[select.selectedIndex].value;
-  getAllPagesFromDatabase({databaseId});
+  const array = select.options[select.selectedIndex].value.split('-');
+  getAllPagesFromDatabase({json: array[0], databaseId: array[1] });
   AllPagesContainer.style.display = "none";
   button_container.style.display = "none";
   openFormButton.style.display = "none";
@@ -156,8 +156,8 @@ const findByClassID = ({classId}) => {
     .catch(error => console.log('Error:', error));
 }
 
-const getAllPagesFromDatabase = ({databaseId}) => {
-  const url = `http://localhost:8000/all/${databaseId}`;
+const getAllPagesFromDatabase = ({json, databaseId}) => {
+  const url = `http://localhost:8000/all/${json}/${databaseId}`;
   console.log('url: ', url);
   fetch(url)
   .then(res => res.json())

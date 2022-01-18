@@ -1,11 +1,12 @@
 const express = require("express");
 const moduleToFetch = require("./index");
 const classes = require("./src/jsonClasses");
+const lessons = require("./src/jsonLessons");
 const getStepsDatabase = moduleToFetch.getStepsDatabase;
 const getClassesDatabase = moduleToFetch.getClassesDatabase;
 const getAllStepsToDatabase = moduleToFetch.getAllStepsToDatabase;
 const getAllClassesToDatabase = moduleToFetch.getAllClassesToDatabase;
-//const getAllClassesFromDatabase = moduleToFetch.getAllClassesFromDatabase;
+const getAllLessonsFromDatabase = lessons.getAllLessonsFromDatabase;
 const getAllClassesFromDatabase = classes.getAllClassesFromDatabase;
 const getPagesFromDatabase = moduleToFetch.getPagesFromDatabase;
 const getPagesById = moduleToFetch.getPagesById;
@@ -44,17 +45,7 @@ app.get("/all/steps", async (req, res) => {
 
 app.get("/classes", async (req, res) => {
   try {
-    const classes = await getPagesFromDatabase({filter: {
-                                                        property: "classId",
-                                                        rollup: {
-                                                                any: {
-                                                                        select: {
-                                                                          equals: "c01"
-                                                                        }
-                                                                      }
-                                                                }
-                                                      }, 
-                                                database_Id: "fd40992046714433882126e3b8cc59fc"});
+    const classes = await getPagesFromDatabase({database_Id: "75050910b89b48c6a52274bd0de4bb7b"});
     res.status(200).json(classes);
   } catch (error) {
     console.log(error);
@@ -70,11 +61,22 @@ app.get("/all/classes", async (req, res) => {
   }
 });
 
-app.get("/all/:databaseId", async (req, res) => {
+app.get("/all/classes/:databaseId", async (req, res) => {
   const databaseId = req.params.databaseId;
   console.log('databaseId:', databaseId);
    try {
      const pages = await getAllClassesFromDatabase({databaseId});
+     res.status(200).json(pages);
+   } catch (error) {
+     console.log(error);
+   }
+});
+
+app.get("/all/lessons/:databaseId", async (req, res) => {
+  const databaseId = req.params.databaseId;
+  console.log('databaseId:', databaseId);
+   try {
+     const pages = await getAllLessonsFromDatabase({databaseId});
      res.status(200).json(pages);
    } catch (error) {
      console.log(error);
