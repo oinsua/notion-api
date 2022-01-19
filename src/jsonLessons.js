@@ -29,18 +29,87 @@ const { Client } = require("@notionhq/client");
     const promises = [];
     const pages = [];
     try {
-      list.map(async (item, index) => {( promises[index] = getPages({id: item.id}))});
-         await Promise.allSettled(promises).
-         then((res) => { res.forEach((res) => {
-                                             pages.push(res.value)
-                                            });
-                        }
-              );
+      if(list?.length > 0){
+        list.map(async (item, index) => {( promises[index] = getPages({id: item.id}))});
+          await Promise.allSettled(promises).
+          then((res) => { res.forEach((res) => {
+                                              pages.push(res.value)
+                                              });
+                          }
+                );
+      }
       return pages;
     } catch (error) {
       console.log(error);
     }
   };
+
+/**
+ * function  get all the pages of a database filtered by the classId.  
+ * @param { filter: {}, database_Id:  "" } 
+ * @returns { pages[] } 
+ */
+ const getPagesFromDatabase = async ({filter, database_Id}) => {
+  try {
+    const pages = []
+    let cursor = undefined
+    while (true) {
+      const { results, next_cursor } = await notion.databases.query({
+        database_id: database_Id,
+        start_cursor: cursor,
+        filter,
+      })
+      pages.push(...results)
+      if (!next_cursor) {
+        break
+      }
+      cursor = next_cursor
+    }
+    console.log(`${pages.length} pages successfully fetched.`)
+   return pages;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+/**
+ * auxiliary function to retrieves all properties of Name->Title of class.
+ * @param { array[{}] } 
+ * @returns { arrayElements[""] } 
+ */
+ const getPropertiesNameTitle = ({array}) => {
+  let arrayElements = [];
+  for (let index = 0; index < array.length; index++) {
+    arrayElements = [...arrayElements, array[index]?.properties.name.title[0].plain_text]; 
+  }
+  return arrayElements;
+};
+
+/**
+ * auxiliary function to retrieves all properties of Name->Rich_Text of class.
+ * @param { array[{}] } 
+ * @returns { arrayElements[""] } 
+ */
+ const getPropertiesQuoteTitle = ({array}) => {
+  let arrayElements = [];
+  for (let index = 0; index < array.length; index++) {
+    arrayElements = [...arrayElements, array[index]?.properties.quote.title[0].plain_text]; 
+  }
+  return arrayElements;
+};
+
+/**
+ * auxiliary function to retrieves all properties of other Name->Title of class.
+ * @param { array[{}] } 
+ * @returns { arrayobjects[""] } 
+ */
+ const getOtherNameTitle = ({array}) => {
+  let arrayobjects = [];
+  for (let index = 0; index < array.length; index++) {
+    arrayobjects = [...arrayobjects, array[index].properties.Name.title[0].plain_text];
+  }
+  return arrayobjects;
+};
 
  /**
  * auxiliary function to format the date ( "Noviembre 19, 2021" ).
@@ -66,7 +135,18 @@ const { Client } = require("@notionhq/client");
  * @param { list } 
  * @returns { pages[] } 
  */
- const createJsonObject = ({lessons, blocks}) => {
+ const createJsonObject = ({lessons, classes, blocks, whatStudentsAreSayings, blockSubs, wpLessons }) => {
+    /* Get the blockSub property */                        
+    const className = getPropertiesNameTitle({array: classes});
+    /* Get the block property */                        
+    const block = getPropertiesNameTitle({array: blocks});
+    /* Get the blockSub property */                        
+    const blockSub = getPropertiesNameTitle({array: blockSubs});
+    /* Get the wpLesson property */
+    const wpLesson = getOtherNameTitle({array: wpLessons})
+    /* Get the whatStudentsAreSaying property */
+    const whatStudentsAreSaying = getPropertiesQuoteTitle({array: whatStudentsAreSayings})
+
     /* Get the lessons property */
     return {
         lesson_num: lessons[0].properties.lesson_num.title[0]?.plain_text
@@ -106,12 +186,12 @@ const { Client } = require("@notionhq/client");
         lessonId: lessons[0].properties.lessonId?.formula.string
                         ? lessons[0].properties.lessonId?.formula.string
                         : '',
-        class: [" relation Id"],
+        class: className,
         goal: lessons[0].properties.goal?.multi_select
                         ? lessons[0].properties.goal?.multi_select
                         : '',
-        theme: [" relation Id"],
-        block: ["relation Id"],
+        theme: "",
+        block,
         classId: lessons[0].properties.classId.rollup?.array[0].select.name
                       ? lessons[0].properties.classId.rollup?.array[0].select.name
                       : '',
@@ -119,13 +199,12 @@ const { Client } = require("@notionhq/client");
                             ? lessons[0].properties.contentBlockId.rollup?.array[0]?.formula.string
                             : '',
         thumbnail: "",
-        whatStudentsAreSaying: ["relation Id"],
-        scenes: ["relation Id"],
-        blockSub: ["relation Id"],
-        wpLesson: ["relation Id"],
+        whatStudentsAreSaying,
+        scenes: "",
+        blockSub,
+        wpLesson,
         comingSoonDate: formatDate(lessons[0].properties.comingSoonDate?.date.start),
         undefined: "",
-        blocks,
     };
 };
 
@@ -154,16 +233,42 @@ const { Client } = require("@notionhq/client");
       // check if the results array contains a class
       if (pages.length > 0) {
         for (const item of pages) {
+          console.log('lessonId: ', item.properties.lessonId?.formula.string);
               //get all the related data in pageArray[].
-              const block_ID = item.properties.block.relation;
+              const pagesClass = await getPagesFromDatabase({ database_Id: process.env.NOTION_DB_CLASSES, 
+                                                               filter: {
+                                                                  property: 'lessonsId',
+                                                                  rollup: {
+                                                                    any: {
+                                                                            text: {
+                                                                              equals: item.properties.lessonId?.formula.string 
+                                                                                          ? item.properties.lessonId?.formula.string 
+                                                                                          : '',
+                                                                            } }} }});
+              const pagesWhatStudentsAreSaying = await getPagesFromDatabase({ database_Id: process.env.NOTION_DB_STUDENTS_REVIEWS,
+                                                                                  filter: {
+                                                                                    property: 'lesson_id',
+                                                                                    rollup: {
+                                                                                      any: {
+                                                                                              text: {
+                                                                                                equals: item.properties.lessonId?.formula.string 
+                                                                                                            ? item.properties.lessonId?.formula.string 
+                                                                                                            : '',
+                                                                                              } }} }});
+
+              const block_ID = item.properties.block?.relation;
               const pagesBlock = await getPromisesData(block_ID);
-              /* const whatStudentsAreSaying_ID = item.properties.whatStudentsAreSaying.relation;
-              const pageswhatStudentsAreSaying = await getPromisesData(whatStudentsAreSaying_ID);
-    
-              const wpLessons_ID = item.properties.wpLessons.relation;
-              const pagesWpLessons = await getPromisesData(wpLessons_ID); */
+
+              const blockSub_ID = item.properties.blockSub?.relation;
+              const pagesBlockSub = await getPromisesData(blockSub_ID);
+
+              const wpLesson_ID = item.properties.wpLesson?.relation;
+              const pagesWpLesson = await getPromisesData(wpLesson_ID);
+
             //Create the lessons Object.
-              const lessonObject = createJsonObject({lessons: [item], blocks: pagesBlock});
+              const lessonObject = createJsonObject({lessons: [item], classes: pagesClass, blocks: pagesBlock, 
+                                                        whatStudentsAreSayings: pagesWhatStudentsAreSaying, 
+                                                        blockSubs: pagesBlockSub, wpLessons: pagesWpLesson});
               arrayObjects = [...arrayObjects, lessonObject];
         }
         //Return the json classes.

@@ -1,4 +1,4 @@
-const container = document.getElementById("container");
+const container = document.getElementById("jsoneditor");
 const searchButton = document.getElementById("newUserButton");
 
 const openFormButton = document.getElementById("findClassId");
@@ -109,7 +109,7 @@ const getDataFromBackend = async () => {
   return data;
 };
 
-const syntaxHighlight = (json) => {
+const syntaxHighlight = ({json, container}) => {
   if (typeof json != 'string') {
        json = JSON.stringify(json, undefined, 2);
   }
@@ -140,18 +140,7 @@ const findByClassID = ({classId}) => {
                         console.log('Success:',response);
                         const json = JSON.stringify(response, undefined, 4);
 
-                        container.innerHTML = `<pre>${syntaxHighlight(json)}</pre>`;
-                        /* const div = document.createElement("div");
-                        div.classList.add("userContainer");
-                        div.innerHTML = `
-                            <div class="divContainer">
-                            <h3>ClassId: ${response.classId}</h3>
-                            <p>Class Name: ${response.classes[0].properties.title.rich_text[0].plain_text}</p>
-                            <p>Chef Name: ${response.classes[0].properties.name.title[0].plain_text}</p>
-                            <p>Description: ${response.classes[0].properties.description.rich_text[0].plain_text}</p>
-                            </div>
-                        `;
-                        container.append(div); */
+                        container.innerHTML = `<pre>${syntaxHighlight({json})}</pre>`;
                       })
     .catch(error => console.log('Error:', error));
 }
@@ -162,9 +151,18 @@ const getAllPagesFromDatabase = ({json, databaseId}) => {
   fetch(url)
   .then(res => res.json())
   .then(response => {
-                     console.log('Success: ', response)
+                     console.log('Success: ', response);
                      const json = JSON.stringify(response, undefined, 4);
-                     container.innerHTML = `<pre>${syntaxHighlight(json)}</pre>`;
+                     const {collection, data} = response;
+                     if(collection === 'SUPPLIES'){
+                      const container = document.getElementById('jsoneditor');
+                      container.classList.add('jsonEditor');
+                      const options = {};
+                      const editor = new JSONEditor(container, options);
+                      editor.set(response);
+                     }else{
+                      container.innerHTML = `<pre>${syntaxHighlight(json)}</pre>`;
+                     }                    
                     });
 };
 
@@ -176,7 +174,7 @@ const getPagesById = ({pageId}) => {
   .then(response => {
                      console.log('Success: ', response)
                      const json = JSON.stringify(response, undefined, 4);
-                     container.innerHTML = `<pre>${syntaxHighlight(json)}</pre>`;
+                     container.innerHTML = `<pre>${syntaxHighlight({json})}</pre>`;
                     });
 };
 
