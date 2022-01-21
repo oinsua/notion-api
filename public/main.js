@@ -3,6 +3,7 @@ const searchButton = document.getElementById("newUserButton");
 
 const openFormButton = document.getElementById("findClassId");
 const closeFormButton = document.getElementById("closeFormButton");
+const closeFormButtonLessons = document.getElementById("closeFormButtonLessons");
 const closeFormButtonPage = document.getElementById("closeFormButtonPage");
 const closeFormButtonAll = document.getElementById("closeFormButtonAll");
 const classIdFormContainer = document.getElementById("classIdFormContainer");
@@ -13,7 +14,9 @@ const classIdForm = document.getElementById("classIdForm");
 const classIdFormPage = document.getElementById("classIdFormPage");
 const classIdFormAll = document.getElementById("classIdFormAll");
 const AllPagesContainer = document.getElementById("AllPagesContainer");
+const PagesContainerLessons = document.getElementById("PagesContainerLessons");
 const findAllClass = document.getElementById("findAllClass");
+const findLesson = document.getElementById("findLesson");
 const getPages = document.getElementById("getPages");
 
 classIdForm.addEventListener('submit', (e) => {
@@ -53,6 +56,11 @@ findAllClass.addEventListener('click',() => {
   button_container.style.display = "none";
 });
 
+findLesson.addEventListener('click',() => {
+  PagesContainerLessons.style.display = "flex";
+  button_container.style.display = "none";
+});
+
 openFormButton.addEventListener("click", () => {
   classIdFormContainer.style.display = "flex";
   button_container.style.display = "none";
@@ -75,6 +83,11 @@ closeFormButtonPage.addEventListener("click", () => {
 
 closeFormButtonAll.addEventListener("click", () => {
   AllPagesContainer.style.display = "none";
+  button_container.style.display = "block";
+});
+
+closeFormButtonLessons.addEventListener("click", () => {
+  PagesContainerLessons.style.display = "none";
   button_container.style.display = "block";
 });
 
@@ -153,11 +166,16 @@ const getAllPagesFromDatabase = ({json, databaseId}) => {
   .then(response => {
                      console.log('Success: ', response);
                      const json = JSON.stringify(response, undefined, 4);
-                     const {collection, data} = response;
+                     const {collection} = response;
                      if(collection === 'SUPPLIES'){
                       const container = document.getElementById('jsoneditor');
                       container.classList.add('jsonEditor');
-                      const options = {};
+                      const options = {
+                        mode: 'tree',
+                        modes: ['code', 'form', 'text', 'tree', 'view', 'preview'], // allowed modes
+                        onModeChange: function (newMode, oldMode) {
+                          console.log('Mode switched from', oldMode, 'to', newMode)
+                        }};
                       const editor = new JSONEditor(container, options);
                       editor.set(response);
                      }else{

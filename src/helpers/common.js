@@ -5,22 +5,8 @@ const { Client } = require("@notionhq/client");
  * conection to notion db.
  */
  const notion = new Client({ auth: process.env.NOTION_API_KEY });
- 
-/**
- * auxiliary function to make request and to get response
- * @param { id } 
- * @returns { response }  
- */
- const getPages = async function ({id}) {
-    try {
-      const response = await notion.pages.retrieve({page_id: id})
-      return response;
-    } catch (error) {
-      console.log(error);
-    }
-}
 
- /**
+/**
  * auxiliary function to create many promises to get all pages.
  * @param { list } 
  * @returns { pages[] } 
@@ -30,7 +16,7 @@ const { Client } = require("@notionhq/client");
     const pages = [];
     try {
       if(list?.length > 0){
-        list.map(async (item, index) => {( promises[index] = getPages({id: item.id}))});
+        list.map(async (item, index) => {( promises[index] = notion.pages.retrieve({page_id: item.id}))});
           await Promise.allSettled(promises).
           then((res) => { res.forEach((res) => {
                                               pages.push(res.value)
@@ -53,7 +39,7 @@ const { Client } = require("@notionhq/client");
   try {
     const pages = []
     let cursor = undefined
-    while (true) {
+    while (true) { 
       const { results, next_cursor } = await notion.databases.query({
         database_id: database_Id,
         start_cursor: cursor,
@@ -71,6 +57,25 @@ const { Client } = require("@notionhq/client");
     console.log(error);
   }
 };
+
+/**
+ * function  get the pages of a array filtered by other all pages.  
+ * @param { array: [{}], pages: [{}] } 
+ * @returns { pages[] } 
+ */
+ exports.getDataIdArray = ({array, pages}) => {
+  let pagesClass = [];
+  if(array?.length > 0 && pages?.length > 0){
+    array.filter((obj) => {
+      pages.filter((page) => {
+            if(obj?.id === page?.id){
+              pagesClass = [...pagesClass, page];
+            }  
+          })
+    })
+  };
+  return pagesClass;
+ };
 
 /**
  * auxiliary function to retrieves all properties of Name->Title of class.

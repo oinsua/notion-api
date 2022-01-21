@@ -50,6 +50,32 @@
       </form>
     </div>
 
+    <div id="PagesContainerLessons" class="classIdFormContainer">
+      <button id="closeFormButtonLessons" class="closeFormButton">Close</button>
+      <form method="POST"  id="classIdFormLessons" class="classIdForm">
+        <h1 id="formTitleLessons" class="formTitle">Search one Lessons by LessonId</h1>
+        <div class="AllPagesInputs">
+          <select title="databaseId" id="databaseId" class="inputField">
+            <option value="c01_l02">c01_l02</option>
+            <option value="c01_l03">c01_l03</option>
+            <option value="c01_l04">c01_l04</option>
+            <option value="c01_l04">c02_l04</option>
+            <option value="c01_l04">c02_l06</option>
+            <option value="c01_l04">c02_l08</option>
+            <option value="c04_l03">c04_l03</option>
+            <option value="c04_l04">c04_l04</option>
+            <option value="c04_l05">c04_l05</option>
+            <option value="c04_l06">c04_l06</option>
+            <option value="c04_l07">c04_l07</option>
+            <option value="c04_l12">c04_l12</option>
+            <option value="c04_l13">c04_l13</option>
+            <option value="c05_l01">c05_l01</option>
+          </select>
+          <input type="submit" id="submitFormInputLessons" class="submitFormInput" value="findLessons" />
+        </div>
+      </form>
+    </div>
+
     <div id="classIdFormContainerPage" class="classIdFormContainer">
       <button id="closeFormButtonPage" class="closeFormButton">Close</button>
       <form method="POST"  id="classIdFormPage" class="classIdForm">
@@ -71,6 +97,7 @@
       <button type="button" id="newUserButton" class="Search-Info">Search Info</button>
       <button type="button" id="findClassId" class="find-Info">Search by Id</button>
       <button type="button" id="getPages" class="Get-Pages">Get Page by Id</button>
+      <button type="button" id="findLesson" class="find-Lessons">Show Find Lesson</button>
     </div>
 
     <script  src="./main.js"></script>

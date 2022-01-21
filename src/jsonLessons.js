@@ -136,7 +136,7 @@ const { Client } = require("@notionhq/client");
  * @returns { pages[] } 
  */
  const createJsonObject = ({lessons, classes, blocks, whatStudentsAreSayings, blockSubs, wpLessons }) => {
-    /* Get the blockSub property */                        
+    /* Get the className property */                        
     const className = getPropertiesNameTitle({array: classes});
     /* Get the block property */                        
     const block = getPropertiesNameTitle({array: blocks});

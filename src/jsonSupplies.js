@@ -7,13 +7,37 @@ const server = require("./helpers/common");
  */
  const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
+/**
+ * auxiliary function to retrieves all properties of StepNumber->Title of class.
+ * @param { array[{}] } 
+ * @returns { arrayElements[""] } 
+ */
+ const getPropertiesStepNumberTitle = ({array}) => {
+  let arrayElements = [];
+  for (let index = 0; index < array?.length; index++) {
+    arrayElements = [...arrayElements, array[index]?.properties.stepNumber?.title[0]?.plain_text]; 
+  }
+  return arrayElements;
+};
+
  /**
  * Auxiliary function to create JSON Object. Retrieves all the properties of the corresponding relations  
  * @param { list } 
  * @returns { pages[] } 
  */
   const createJsonObject = ({supplies, classes, contentBlockMains, contentBlockSubs, shorthands, stepss, suppliesMasters }) => {
-    /* Get the blockSub property */                        
+    /* Get the className property */                        
+    const className = server.getPropertiesNameTitle({array: classes});                       
+    /* Get the contentBlockMain property */                        
+    const contentBlockMain = server.getPropertiesNameTitle({array: contentBlockMains});                       
+    /* Get the contentBlockSub property */                        
+    const contentBlockSub = server.getPropertiesNameTitle({array: contentBlockSubs});                       
+    /* Get the shorthand property */                        
+    const shorthand = server.getPropertiesNameTitle({array: shorthands}); 
+    /* Get the steps property */ 
+    const steps = getPropertiesStepNumberTitle({array: stepss})                     
+    /* Get the suppliesMaster property */                        
+    const suppliesMaster = server.getPropertiesNameTitle({array: suppliesMasters});                       
     
   
     /* Get the supplies property */
@@ -21,7 +45,7 @@ const server = require("./helpers/common");
           name: supplies[0].properties.name.title[0]?.plain_text 
                      ? supplies[0].properties.name.title[0]?.plain_text 
                      : '',
-          contentBlockSub: contentBlockSubs,
+          contentBlockSub,
           supplyId: supplies[0].properties.supplyId?.formula?.string 
                           ? supplies[0].properties.supplyId?.formula?.string  
                           : '',
@@ -33,7 +57,7 @@ const server = require("./helpers/common");
           type: supplies[0].properties.type.select.name
                       ? supplies[0].properties.type.select.name 
                       : '',
-          suppliesMaster: suppliesMasters,
+          suppliesMaster,
           num: supplies[0].properties.num.rich_text[0]?.plain_text
                     ? supplies[0].properties.num.rich_text[0]?.plain_text 
                     : '',
@@ -45,19 +69,19 @@ const server = require("./helpers/common");
           contentBlockSubId: supplies[0].properties.contentBlockSubId.rollup.array[0]?.formula?.string
                                 ? supplies[0].properties.contentBlockSubId.rollup.array[0]?.formula?.string 
                                 : '',
-          contentBlockMain: contentBlockMains,
-          steps: stepss,
+          contentBlockMain,
+          steps,
           substitutedSupply: supplies[0].properties.substitutedSupply.rollup.array[0]?.formula?.string
                                 ? supplies[0].properties.substitutedSupply.rollup.array[0]?.formula?.string 
                                 : '',
           contentBlockMainId: supplies[0].properties.contentBlockMainId.rollup.array[0]?.formula?.string
                                 ? supplies[0].properties.contentBlockMainId.rollup.array[0]?.formula?.string 
                                 : '',
-          class: classes,
+          class: className,
           classId: supplies[0].properties.classId.rollup.array[0]?.select?.name
                         ? supplies[0].properties.classId.rollup.array[0]?.select?.name
                         : '',
-          shorthand: shorthands,
+          shorthand,
           date: supplies[0].properties.date.created_time
                     ? supplies[0].properties.date.created_time
                     : '',
@@ -94,46 +118,54 @@ const server = require("./helpers/common");
       }
       console.log(`${pages.length} pages successfully fetched.`)
       let arrayObjects = [];
+      let arrayRelation = [];
+      let counter = 0;
       // check if the results array contains a supplies
       if (pages.length > 0) {
-        let count = 0;
-        const length = pages.length;
-        for (const item of pages) {
-          console.log(`${count++}/${length} - name: ${item.properties.name.title[0]?.plain_text}`);
-              //get all the related data in pageArray[].
-              /* const pagesClass = await getPagesFromDatabase({ database_Id: process.env.NOTION_DB_CLASSES, 
-                filter: {
-                   property: 'classId',
-                   select: {
-                               equals: item.properties.classId.rollup.array[0]?.select?.name
-                                           ? item.properties.classId.rollup.array[0]?.select?.name
-                                           : '',
-                             }}}); */
-            /* Get the class property */
-            const class_ID = item.properties.class.relation;
-            const pagesClass = await server.getPromisesData(class_ID);
-            /* Get the contentBlockMain property */
-            const contentBlockMain_ID = item.properties.contentBlockMain.relation;
-            const pagescontentBlockMain = await server.getPromisesData(contentBlockMain_ID);
-            /* Get the contentBlockSub property */
-            const contentBlockSub_ID = item.properties.contentBlockSub.relation;
-            const pagescontentBlockSub = await server.getPromisesData(contentBlockSub_ID);
-            /* Get the shorthand property */
-            const shorthand_ID = item.properties.shorthand.relation;
-            const pagesshorthand = await server.getPromisesData(shorthand_ID);
-            /* Get the steps property */
-            const steps_ID = item.properties.steps.relation;
-            const pagessteps = await server.getPromisesData(steps_ID);
-            /* Get the suppliesMaster property */
-            const suppliesMaster_ID = item.properties.suppliesMaster.relation;
-            const pagessuppliesMaster = await server.getPromisesData(suppliesMaster_ID);
-
-            //Create the supplies Object.
-              const suppliesObject = createJsonObject({supplies: [item], classes: pagesClass, contentBlockMains: pagescontentBlockMain,
-                                                       contentBlockSubs: pagescontentBlockSub, shorthands: pagesshorthand, 
-                                                       stepss: pagessteps, suppliesMasters: pagessuppliesMaster});
-              arrayObjects = [...arrayObjects, suppliesObject];
+        const Interval_id = setInterval(() => {
+          console.log(counter++);
+        }, 1000);
+        for (let index = 0; index < pages.length; index++) {
+          console.log(`${index}/${pages.length} - name: ${pages[index].properties.name.title[0]?.plain_text}`);
+          const class_ID = [...pages[index].properties.class?.relation];
+          if(class_ID?.length > 0){
+            arrayRelation = [...class_ID]
+          }
+          const contentBlockMain_ID = [...pages[index].properties.contentBlockMain?.relation];
+          if(contentBlockMain_ID?.length > 0){
+            arrayRelation = [...arrayRelation, ...contentBlockMain_ID];
+          }
+          const contentBlockSub_ID = [...pages[index].properties.contentBlockSub.relation];
+          if(contentBlockSub_ID?.length > 0){
+            arrayRelation = [...arrayRelation, ...contentBlockSub_ID];
+          }
+          const shorthand_ID = [...pages[index].properties.shorthand.relation];
+          if(shorthand_ID?.length > 0){
+            arrayRelation = [...arrayRelation, ...shorthand_ID];
+          }
+          const steps_ID = [...pages[index].properties.steps.relation];
+          if(steps_ID?.length > 0){
+            arrayRelation = [...arrayRelation, ...steps_ID];
+          }
+          const suppliesMaster_ID = pages[index].properties.suppliesMaster.relation;
+          if(suppliesMaster_ID?.length > 0){
+            arrayRelation = [...arrayRelation, ...suppliesMaster_ID];
+          }
+          const pagesAll = await server.getPromisesData(arrayRelation);
+          //Get the array corresponding to each object.
+          const pagesClass = server.getDataIdArray({array: class_ID, pages: pagesAll});
+          const pagescontentBlockMain = server.getDataIdArray({array: contentBlockMain_ID, pages: pagesAll});
+          const pagescontentBlockSub = server.getDataIdArray({array: contentBlockSub_ID, pages: pagesAll});
+          const pagesshorthand = server.getDataIdArray({array: shorthand_ID, pages: pagesAll});
+          const pagessteps = server.getDataIdArray({array: steps_ID, pages: pagesAll});
+          const pagessuppliesMaster = server.getDataIdArray({array: suppliesMaster_ID, pages: pagesAll});
+          //Create the supplies Object.
+            const suppliesObject = createJsonObject({supplies: [pages[index]], classes: pagesClass, contentBlockMains: pagescontentBlockMain,
+                                                     contentBlockSubs: pagescontentBlockSub, shorthands: pagesshorthand, 
+                                                     stepss: pagessteps, suppliesMasters: pagessuppliesMaster});
+            arrayObjects = [...arrayObjects, suppliesObject];
         }
+        clearInterval(Interval_id);
         //Return the json supplies.
         return {
           collection: "SUPPLIES",
