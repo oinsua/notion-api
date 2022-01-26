@@ -116,6 +116,32 @@ const { Client } = require("@notionhq/client");
   return arrayobjects;
 };
 
+/**
+ * auxiliary function to retrieves all properties of multiselect->name.
+ * @param { array[{}] } 
+ * @returns { arrayobjects[""] } 
+ */
+ exports.getMultiSelectName = ({array}) => {
+  let arrayobjects = [];
+  for (let index = 0; index < array.length; index++) {
+    arrayobjects = [...arrayobjects, array[index].name];
+  }
+  return arrayobjects;
+};
+
+/**
+ * auxiliary function to retrieves all properties of other scene*->title of class.
+ * @param { array[{}] } 
+ * @returns { arrayobjects[""] } 
+ */
+ exports.getSceneTitle = ({array}) => {
+  let arrayobjects = [];
+  for (let index = 0; index < array.length; index++) {
+    arrayobjects = [...arrayobjects, array[index].properties['scene*'].title[0].plain_text];
+  }
+  return arrayobjects;
+};
+
  /**
  * auxiliary function to format the date ( "Noviembre 19, 2021" ).
  * @param { date ( 2021-11-19) } 
@@ -134,3 +160,16 @@ const { Client } = require("@notionhq/client");
     }
     return '';
   }
+
+/**
+ * auxiliary function to retrieves all properties of Name->Rich_Text of class.
+ * @param { array[{}] } 
+ * @returns { arrayElements[""] } 
+ */
+ exports.getPropertiesQuoteTitle = ({array}) => {
+  let arrayElements = [];
+  for (let index = 0; index < array.length; index++) {
+    arrayElements = [...arrayElements, array[index]?.properties.quote.title[0].plain_text]; 
+  }
+  return arrayElements;
+};

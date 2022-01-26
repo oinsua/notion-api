@@ -13,6 +13,7 @@ const submitFormInput = document.getElementById("submitFormInput");
 const classIdForm = document.getElementById("classIdForm");
 const classIdFormPage = document.getElementById("classIdFormPage");
 const classIdFormAll = document.getElementById("classIdFormAll");
+const classIdFormLessons = document.getElementById("classIdFormLessons");
 const AllPagesContainer = document.getElementById("AllPagesContainer");
 const PagesContainerLessons = document.getElementById("PagesContainerLessons");
 const findAllClass = document.getElementById("findAllClass");
@@ -41,10 +42,21 @@ classIdFormAll.addEventListener('submit', (e) => {
   searchButton.style.display = "none";
 });
 
+classIdFormLessons.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const select= document.getElementById("lessonId")
+  const lesson = select.options[select.selectedIndex].value;
+  getLessonPageFromDatabase({lessonId: lesson });
+  PagesContainerLessons.style.display = "none";
+  button_container.style.display = "none";
+  openFormButton.style.display = "none";
+  searchButton.style.display = "none";
+});
+
 classIdFormPage.addEventListener('submit', (e) => {
   e.preventDefault();
-  const pageId = document.getElementById("pageId").value
-  getPagesById({pageId});
+  const lessonId = document.getElementById("pageId").value
+  getBlockByLessonId({lessonId});
   classIdFormContainerPage.style.display = "none";
   button_container.style.display = "none";
 });
@@ -77,7 +89,7 @@ closeFormButton.addEventListener("click", () => {
 });
 
 closeFormButtonPage.addEventListener("click", () => {
-  classIdFormContainer.style.display = "none";
+  classIdFormContainerPage.style.display = "none";
   button_container.style.display = "block";
 });
 
@@ -193,6 +205,49 @@ const getPagesById = ({pageId}) => {
                      console.log('Success: ', response)
                      const json = JSON.stringify(response, undefined, 4);
                      container.innerHTML = `<pre>${syntaxHighlight({json})}</pre>`;
+                    });
+};
+
+
+const getLessonPageFromDatabase = ({lessonId}) => {
+  const url = `http://localhost:8000/lesson/${lessonId}`;
+  console.log('url: ', url);
+  fetch(url)
+  .then(res => res.json())
+  .then(response => {
+                     console.log('Success: ', response);
+                     const {collection, data} = response;
+                      const container = document.getElementById('jsoneditor');
+                      container.classList.add('jsonEditor');
+                      const options = {
+                        mode: 'code',
+                        modes: ['code', 'form', 'text', 'tree', 'view', 'preview'], // allowed modes
+                        onModeChange: function (newMode, oldMode) {
+                          console.log('Mode switched from', oldMode, 'to', newMode)
+                        }};
+                      const editor = new JSONEditor(container, options);
+                      editor.set({collection, data});                    
+                    });
+};
+
+const getBlockByLessonId = ({lessonId}) => {
+  const url = `http://localhost:8000/block/${lessonId}`;
+  console.log('url: ', url);
+  fetch(url)
+  .then(res => res.json())
+  .then(response => {
+                     console.log('Success: ', response);
+                     const {collection, data} = response;
+                      const container = document.getElementById('jsoneditor');
+                      container.classList.add('jsonEditor');
+                      const options = {
+                        mode: 'code',
+                        modes: ['code', 'form', 'text', 'tree', 'view', 'preview'], // allowed modes
+                        onModeChange: function (newMode, oldMode) {
+                          console.log('Mode switched from', oldMode, 'to', newMode)
+                        }};
+                      const editor = new JSONEditor(container, options);
+                      editor.set({collection, data});                    
                     });
 };
 

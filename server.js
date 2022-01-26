@@ -3,6 +3,8 @@ const moduleToFetch = require("./index");
 const classes = require("./src/jsonClasses");
 const lessons = require("./src/jsonLessons");
 const supplies = require("./src/jsonSupplies");
+const lesson = require("./src/lesson");
+const content_Block = require("./src/content_Block");
 const getStepsDatabase = moduleToFetch.getStepsDatabase;
 const getClassesDatabase = moduleToFetch.getClassesDatabase;
 const getAllStepsToDatabase = moduleToFetch.getAllStepsToDatabase;
@@ -11,6 +13,7 @@ const getAllLessonsFromDatabase = lessons.getAllLessonsFromDatabase;
 const getAllClassesFromDatabase = classes.getAllClassesFromDatabase;
 const getAllSuppliesFromDatabase = supplies.getAllSuppliesFromDatabase;
 const getPagesFromDatabase = moduleToFetch.getPagesFromDatabase;
+const getLessonPageFromDatabase = lesson.getLessonPageFromDatabase;
 const getPagesById = moduleToFetch.getPagesById;
 const findClassById = moduleToFetch.findClassById;
 const cors = require('cors');
@@ -106,6 +109,28 @@ app.get("/page/:pageId", async (req, res) => {
   const pageId = req.params.pageId;
   const result = await getPagesById({pageId});
   res.status(200).json(result);
+});
+
+app.get("/lesson/:lessonId", async (req, res) => {
+  const lessonId = req.params.lessonId;
+  console.log('lessonId:', lessonId);
+   try {
+     const pages = await getLessonPageFromDatabase({lessonId});
+     res.status(200).json(pages);
+   } catch (error) {
+     console.log(error);
+   }
+});
+
+app.get("/block/:lessonId", async (req, res) => {
+  const lessonId = req.params.lessonId;
+  console.log('lessonId:', lessonId);
+   try {
+     const pages = await content_Block.getBlockDataFromDatabase({lessonId});
+     res.status(200).json(pages);
+   } catch (error) {
+     console.log(error);
+   }
 });
 
 
